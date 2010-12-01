@@ -1,0 +1,143 @@
+#!/usr/bin/expect -f
+# Version 0.1 (initial release)
+#### Description ####
+#This Script Automates running a create list
+# Creating list of available items with bib level holds for finding
+# Holds that were not paged properly.
+#####################
+
+######### Settings ##########
+#Edit these variables so they
+#reflect your setup
+# ILS Server hostname or IP
+set server "ils.server.org"
+
+# Innopac Login name
+set loginName "login"
+
+# Innopac Login Password
+set loginPass "pword"
+
+#Initials Authorized for use
+set initialsName "initname"
+
+#Initials Password
+set initialsPass "initpass"
+##############################
+
+##Create List Settings##
+#Create List Number
+set list 040
+
+#Record Range (record number without the record type identifier
+#  blank will fill in the defaults.
+set startrange ""
+set endrange ""
+
+#Create List Logic
+#  This is the string to paste into create list to add all the rules.
+#  Modify this by making note of every key you press when adding rules.
+#  The last character should be s to start running the list.
+#060910 - Changed rule to use loan rule instead of blank date because of bug
+#set rules "21=-a07=  ya?b/8es"
+#set rules "21=-a20=0\nya?b/8es"
+#112910 - Changed rule to exclude phonics kits, 143.
+set rules "21=-a20=0\nya04n143143a?b/8es"
+
+#Terminal Environment
+#set env(TERM) vt100
+
+#expect timeout, how long the expect command will wait for data to match.
+#  This needs to be longer than it takes the create list to run.
+set timeout 2400
+
+#Don't show telnet output, Comment this out to show all output,
+#usefull for debuging.
+#log_user 0
+
+puts "Connecting to server $server\n"
+spawn telnet $server
+
+puts "Logging into server $server\n"
+expect "login:" { send "$loginName\r" }
+expect "Password:" { send "$loginPass\r" }
+puts "Logged in\n"
+
+expect "Choose one*" { send "m" ; puts "M > MANAGEMENT information" }
+expect "Choose one*" { send "l" ; puts "L > Create LISTS of records" }
+
+puts "Sending Initials\n"
+expect "Please key your initials :" { send "$initialsName\r" }
+expect "Please key your password :" { send "$initialsPass\r" }
+puts "Initials Accepted\n"
+
+expect "Choose one*" { send "$list" ; puts "$list - Selecting review file $list" }
+
+expect {
+	"Choose one (1,2,Q)" {send "2" ; puts "2 > Create a new file" }
+	"Choose one*" { send "n" ; puts "N > NEW BOOLEAN search, delete the review file" 
+		expect "current review file? (y/n)*" {send "y" ; puts "Y - Deleted current review file" }
+		}
+	}
+
+expect "Choose one*" { send "i" ; puts "I > ITEM list" }
+
+send "$rules"
+
+expect "to give this file of records?*" { send "Current Available Items with Holds\r" ; puts "Name: Current Available Items with Holds" }
+
+expect "Press <SPACE> to continue" { send " " ; puts "Pressing Space" }
+
+expect "Choose one*" { send "u" ; puts "U > Output USER-selected format" }
+expect "Choose one*" { send "c" ; puts "C > CREATE a new file for output" }
+
+expect "Output Item*" { send "?b09" ; puts "Bib Record Number" }
+expect "Output Item*" { send "?i29" ; puts "Item Record Number" }
+expect "Output Item*" { send "c" ; puts "Item Call #" }
+expect "Output Item*" { send "19" ; puts "Item Location" }
+expect "Output Item*" { send "?bt" ; puts "Bib Title" }
+expect "Output Item*" { send "a" ; puts "Bib Author" }
+expect "Output Item*" { send "/8" ; puts "Bib Holds" }
+expect "Output Item*" { send "\n" ; puts "End selection" }
+expect "Choose one*" { send "1" ; puts "1 > Field Delimiter" }
+expect "Choose one*" { send "2" ; puts "2 > ASCII character" }
+expect "ASCII character*" { send "~" ; puts " ---> ~" }
+expect "Choose one*" { send "c" ; puts "C > CREATE a new file for output" }
+
+expect "File name:" { send "Available-Items-With-Holds.data\r" ; puts "Filename" }
+expect "Overwrite it?" {send "y" ; puts "Overwrite file" }
+
+expect "Output the file now?" { send "y" ; puts "Output file now" }
+
+#This needs to be changed to reflect which ftp host you need
+expect "Choose one*" { send "4" ; puts "Ftp to host 4" }
+
+puts "Logging into ftp server\n"
+expect "Username:" { send "$loginName\r" }
+expect "Password:" { send "$loginPass\r" }
+puts "Logged in\n"
+
+expect "Choose one*" { send "t" ; puts "T > TRANSFER files" }
+
+expect "Enter name of remote file" { send "\n" ; puts "Enter to pick default name" }
+
+expect "Choose one*" { send "c" ; puts "Transfer Done" }
+
+expect "Choose one*" { send "q" ; puts "Q > exit create list" }
+
+expect "Choose one*" { send "q" ; puts "Q > exit create list" }
+
+
+expect "Choose one*" { send "q" ; puts "Quit" }
+expect "Choose one*" { send "q" ; puts "Quit" }
+expect "Choose one*" { send "q" ; puts "Quit" }
+expect "Choose one*" { send "x" ; puts "Disconnect" }
+
+puts "Copy file to current directory\n"
+set filedate [exec date +%m%d-%Y]
+
+#edit this to reflect where your files are at
+#Copies file from ftp location to scripts location
+exec cp /home/ftplocation/Available-Items-With-Holds.data.out /home/homefolder/projects/Paging\ List/[exec date +%m%d-%Y]-All-messed-up-holds.data
+
+exit
