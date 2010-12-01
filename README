@@ -20,3 +20,70 @@ Notes:
   - This system does not have the same limitations of paging that the III
  system has.  If there are multiple holds and multiple availible items, they
  will all get paged at once.  This solves the book club problem.
+
+
+#Requirements
+expect needs to be installed.
+
+perl needs to be installed.
+
+Perl Mods needed
+Mail::Sendmail
+MIME::Lite
+Mail::Internet
+Data::Dumper
+Date::Parse
+Date::Manip
+Template
+Template::Stash
+
+You need to have ssh access to III server.
+
+You need to have telnet create list access.
+
+The III server needs to be able to ftp to your server. FTS
+
+
+Setup Steps
+
+Edit createlist-availitems.exp
+
+- Set server name.
+- Set login and inital settings
+- Choose which create list you are going to use.
+- Work out your create list logic.
+- Edit the ftp section so the correct server is selected, uses the same III login&password by default.
+- Edit last section that copies files from the ftp location to the script location.
+
+Edit process-list.pl
+
+This script is going to need to be custimized quite a bit depending on your location code structure, and if you
+have multiple systems using one III server.
+
+- Edit the constants
+- Edit the exclude regular expression to match item location codes you want to exclude.
+- Edit the branch data structure, this sets names, emails and selection weights.
+- If you want to use command line switches to control which emails get sent out, you will need to modify that.
+
+Edit template.html
+
+This file has the email template, you probably don't need to make any changes here though, although you might 
+want to edit the help text that is at the bottom of each one.
+
+Look at tuesday and wed bash scripts, which contain examples for running the process script on different days.
+
+Setup cron to run the scripts on whichever days you want.
+This is what we use.
+
+#  Tuesday Run - to sharon and helen - 8:15am
+15 8 * * 2 /home/stompro/projects/Paging\ List/createlist-availitems.exp
+20 8 * * 2 /home/stompro/projects/Paging\ List/tuesday.bash
+21 15 * * 2 rm /home/stompro/projects/Paging\ List/`date +%m%d-%Y`-All-messed-up-holds.data
+#  Wednesday run - To System1 and System2 Branches - 8:15am
+15 8 * * 3 /home/stompro/projects/Paging\ List/createlist-availitems.exp
+20 8 * * 3 /home/stompro/projects/Paging\ List/wednesday.bash
+21 15 * * 3 rm /home/stompro/projects/Paging\ List/`date +%m%d-%Y`-All-messed-up-holds.data
+
+Also setup cron to delete the files from the ftp users directory
+# m h  dom mon dow   command
+0 10 * * * rm Available-Items-With-Holds.data.out
