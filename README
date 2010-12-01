@@ -1,0 +1,22 @@
+Project: LARL III Scripts extra paging list
+
+Purpose: This script was created because the III automation system does not
+keep track of customers requests very well.  The request system and paging
+system has many holes for requests to slip into and get lost, and there are
+design choices and UI choices that were made that seem to guarantee that
+a certain percentage of requests will never get filled in a timely manner
+without staff intervention.  The amount of staff time to handle these tasks
+became too much, so these scripts were created to automate the task.
+
+How does it work:  One expect script automates the process of running a create
+list to gather all the available items that have bib level holds.  It exports
+the data in CSV format, and ftp's the file from the III server, saving it
+locally.
+
+A second perl script processes the data, replicating the priority paging setup,
+creates a paging list for each branch, and emails the list to each location.
+
+Notes:
+  - This system does not have the same limitations of paging that the III
+ system has.  If there are multiple holds and multiple availible items, they
+ will all get paged at once.  This solves the book club problem.
