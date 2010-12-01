@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title></title>
+</head>
+<body bgcolor="#ffffff" text="#000000">
+Paging list for [% binfo.branch %].<br>
+Generated on [% gendate %].<br>
+Emailed to [% binfo.email %].<br>
+Paging list contains [% items.size %] items to find.
+
+<table border="2" cellpadding="2" cellspacing="2" width="100%">
+  <tbody>
+    <tr>
+      <th valign="top">Found<br>
+      </th>
+      <th valign="top">Call Number<br>
+      </th>
+      <th valign="top">Location Code<br>
+      </th>
+      <th valign="top">Title<br>
+      </th>
+      <th valign="top">Author<br>
+      </th>
+      <th valign="top">Codes<br>
+      </th>
+      <th valign="top"><br>
+      </th>
+      <th valign="top"><br>
+      </th>
+    </tr>
+    [% row = 0 %]
+    [% color = '#cccccc' %]
+[% FOREACH item IN items.subsort( 'call' , 'author' ) %]
+[% CALL row mod 2 ? (color = '#cccccc') : (color = '') %]
+    <tr>
+      <td bgcolor="[% color %]" valign="top">[% row + 1 %]
+      <br> 
+      </td>
+      <td bgcolor="[% color %]" valign="top">[% items.$item.call %]<br>
+      </td>
+      <td bgcolor="[% color %]" valign="top">[% items.$item.location %]<br>
+      </td>
+      <td bgcolor="[% color %]" valign="top">[% items.$item.title %]<br>
+      </td>
+      <td bgcolor="[% color %]" valign="top">[% items.$item.author %]<br>
+      </td>
+      <td bgcolor="[% color %]" valign="top">[% items.$item.bib %]<br>[% item %]<br>[% items.$item.placed %]<br>[% items.$item.pickuploc %]
+      </td>
+      <td bgcolor="[% color %]" valign="top"><br>
+      </td>
+      <td bgcolor="[% color %]" valign="top"><br>
+      </td>
+    </tr>
+    [% row = row + 1 %]
+[% END %]
+
+  </tbody>
+
+</table>
+
+<br>
+<br>
+Why was this list sent?</b>&nbsp; These bibs have holds that were placed
+more than 7 days ago.&nbsp; Normally most holds are filled within the first
+7 days they are placed when there are available items.&nbsp; If a hold isn't
+filled in that time and there are available items it usually means it
+was missed for one of these reasons.<br>
+
+<ol>
+  <li>The hold moved off of the paging list before staff ran the paging
+list.&nbsp; Bibs that are on the paging list more than 72 hours from when
+they are placed, will move off the paging list and on to the next
+location.&nbsp; If there is no next location the holds just fall of the
+list.&nbsp; This is most likely to happen to holds placed on weekends on
+items at location that are closed on Mondays or Tuesday.</li>
+  <li>Staff placed a hold for a customer when there was a locally
+available copy.&nbsp; The system does not page in this situation because the
+item can just be pulled off the shelf at that point.</li>
+  <li>The hold had a NNB(Not Needed Before) date set, which means it is
+paged right when the hold was placed, but cannot be filled until after
+that date.</li>
+  <li>The hold was frozen, and just recently unfrozen.<br>
+  </li>
+  <li>The item wasn't pulled from the shelf when it was paged, and it
+wasn't marked Damaged,Tracking Down, or Missing.</li>
+  <li>Staff didn't click the "Page for Title" button when placing the
+hold, so the item was never on the paging list.</li>
+  <li>Some system error or code inconsistency caused the page to never
+be generated.</li>
+
+</ol>
+<b>Book Clubs:</b> One other situation is when multiple holds are
+placed on multiple available items at the same time, such as when a
+book club wants to request copies for all of its members.&nbsp; The normal
+paging system can only page one item at a time, so it would take 72
+hours * number of items for them all to be filled.&nbsp; They will show up
+on these list after 7 days, letting every location that has one of the
+items know at once.<br>
+<br>
+<b>What should I do if I cannot find the item?<br>
+</b>
+<ul>
+  <li>If you want more time to look for the item, change its status to
+"Tracking Down".</li>
+  <li>If the item is missing, change its status to "MISSING".</li>
+  <li>If the item is damaged, change its status to "DAMAGED".</li>
+
+</ul>
+When you change the status of the item, please also look to see if
+there is any other possibility of the hold being filled, remembering
+that LINK Sites, and Express items won't fill holds.&nbsp; If there are
+other items that were recently checked out(less than a month ago),
+chances are this hold will eventually be filled.&nbsp; If all the other
+items are long overdue, missing, or damaged, then chances are the hold
+will never be filled.&nbsp; If it looks like the hold will never be filled,
+please send an email to the customers home library so they can
+reevaluate the hold and see about requesting it some other way.<br>
+<br>
+</body>
+</html>
